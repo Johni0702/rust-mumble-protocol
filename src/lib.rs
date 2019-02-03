@@ -1,0 +1,16 @@
+//! [Mumble] protocol implementation in Rust.
+//!
+//! [Mumble]: https://mumble.info/
+
+#![feature(try_from)]
+#![deny(missing_docs)]
+#![warn(clippy::all)]
+
+pub mod control;
+#[cfg(feature = "openssl")]
+pub mod crypt;
+pub mod varint;
+pub mod voice;
+
+pub use voice::Clientbound;
+pub use voice::Serverbound;

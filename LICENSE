@@ -1,0 +1,9 @@
+mumble-protocol is licensed under both the MIT license and the Apache License (Version 2.0).
+For the full text of these licenses, see the files LICENSE.MIT and LICENSE.APACHE respectively.
+
+Note that this software contains an implementation of [OCB]. Sub-licensing it may require purchasing a
+license from the patent holder if not convered by one of the [Free Licenses] which this implementation
+is covered under.
+
+[OCB]: http://web.cs.ucdavis.edu/~rogaway/ocb/
+[Free Licenses]: http://web.cs.ucdavis.edu/~rogaway/ocb/license.htm
