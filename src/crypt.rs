@@ -67,21 +67,17 @@ pub enum DecryptError {
 }
 
 impl<EncodeDst: VoicePacketDst, DecodeDst: VoicePacketDst> CryptState<EncodeDst, DecodeDst> {
-    /// Creates a new CryptState with randomly generated key, encrypt- and decrypt-nonce.
+    /// Creates a new CryptState with randomly generated key and initial encrypt- and decrypt-nonce.
     pub fn generate_new() -> Self {
         let mut key = [0; KEY_SIZE];
-        let mut encrypt_nonce = [0; BLOCK_SIZE];
-        let mut decrypt_nonce = [0; BLOCK_SIZE];
         rand_bytes(&mut key).unwrap();
-        rand_bytes(&mut encrypt_nonce).unwrap();
-        rand_bytes(&mut decrypt_nonce).unwrap();
 
         CryptState {
             codec: VoiceCodec::new(),
 
             key,
-            encrypt_nonce: u128::from_ne_bytes(encrypt_nonce),
-            decrypt_nonce: u128::from_ne_bytes(decrypt_nonce),
+            encrypt_nonce: 0,
+            decrypt_nonce: 1 << 127,
             decrypt_history: [0; 0x100],
 
             good: 0,
