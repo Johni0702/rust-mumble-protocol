@@ -9,6 +9,7 @@
 pub mod control;
 #[cfg(feature = "openssl")]
 pub mod crypt;
+pub mod ping;
 pub mod varint;
 pub mod voice;
 
