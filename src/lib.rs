@@ -2,7 +2,6 @@
 //!
 //! [Mumble]: https://mumble.info/
 
-#![feature(try_from)]
 #![deny(missing_docs)]
 #![warn(clippy::all)]
 
