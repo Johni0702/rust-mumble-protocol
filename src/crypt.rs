@@ -5,8 +5,8 @@ use openssl::memcmp;
 use openssl::rand::rand_bytes;
 use std::convert::TryInto;
 use std::io;
-use tokio_codec::Decoder;
-use tokio_codec::Encoder;
+use tokio_util::codec::Decoder;
+use tokio_util::codec::Encoder;
 
 use crate::voice::Clientbound;
 use crate::voice::Serverbound;
@@ -348,13 +348,16 @@ impl<EncodeDst: VoicePacketDst, DecodeDst: VoicePacketDst> Decoder
     }
 }
 
-impl<EncodeDst: VoicePacketDst, DecodeDst: VoicePacketDst> Encoder
+impl<EncodeDst: VoicePacketDst, DecodeDst: VoicePacketDst> Encoder<VoicePacket<EncodeDst>>
     for CryptState<EncodeDst, DecodeDst>
 {
-    type Item = VoicePacket<EncodeDst>;
     type Error = io::Error; // never
 
-    fn encode(&mut self, item: Self::Item, dst: &mut BytesMut) -> Result<(), Self::Error> {
+    fn encode(
+        &mut self,
+        item: VoicePacket<EncodeDst>,
+        dst: &mut BytesMut,
+    ) -> Result<(), Self::Error> {
         self.encrypt(item, dst);
         Ok(())
     }
@@ -406,7 +409,7 @@ mod test {
     // Test vectors from http://web.cs.ucdavis.edu/~rogaway/papers/draft-krovetz-ocb-00.txt
     // (excluding ones with headers since those aren't implemented here)
     #[test]
-    #[allow(clippy::cyclomatic_complexity)] // all macro-generated
+    #[allow(clippy::cognitive_complexity)] // all macro-generated
     fn ocb_test_vectors() {
         macro_rules! test_cases {
             ($(

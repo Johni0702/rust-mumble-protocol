@@ -1,6 +1,6 @@
 [package]
 name = "mumble-protocol"
-version = "0.2.0"
+version = "0.3.0"
 authors = ["Jonas Herzig <me@johni0702.de>"]
 edition = "2018"
 description = "Rust implementation of the Mumble protocol"
@@ -15,15 +15,16 @@ webrtc-extensions = []
 protobuf-codegen-pure = "2"
 
 [dependencies]
-bytes = "0.4"
+bytes = "0.5"
 byteorder = "1"
-tokio-codec = "0.1"
+tokio-util = { version = "0.3", features = ["codec"] }
 protobuf = "2"
 openssl = { version = "0.10", optional = true }
 
 [dev-dependencies]
 argparse = "0.2"
-futures = "0.1"
+futures = "0.3"
 native-tls = "0.2"
-tokio = "0.1"
-tokio-tls = "0.2"
+tokio = { version = "0.2", features = ["full"] }
+tokio-util = { version = "0.3", features = ["codec", "udp"] }
+tokio-tls = "0.3"

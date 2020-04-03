@@ -11,8 +11,8 @@ use std::convert::TryInto;
 use std::io;
 use std::io::Cursor;
 use std::marker::PhantomData;
-use tokio_codec::Decoder;
-use tokio_codec::Encoder;
+use tokio_util::codec::Decoder;
+use tokio_util::codec::Encoder;
 
 use crate::voice::Clientbound;
 use crate::voice::Serverbound;
@@ -68,8 +68,8 @@ impl Decoder for RawControlCodec {
         let buf_len = buf.len();
         if buf_len >= 6 {
             let mut buf = Cursor::new(buf);
-            let id = buf.get_u16_be();
-            let len = buf.get_u32_be() as usize;
+            let id = buf.get_u16();
+            let len = buf.get_u32() as usize;
             if len > 0x7f_ffff {
                 Err(io::Error::new(io::ErrorKind::Other, "packet too long"))
             } else if buf_len >= 6 + len {
@@ -86,8 +86,7 @@ impl Decoder for RawControlCodec {
     }
 }
 
-impl Encoder for RawControlCodec {
-    type Item = RawControlPacket;
+impl Encoder<RawControlPacket> for RawControlCodec {
     type Error = io::Error;
 
     fn encode(&mut self, item: RawControlPacket, dst: &mut BytesMut) -> Result<(), io::Error> {
@@ -95,9 +94,9 @@ impl Encoder for RawControlCodec {
         let bytes = &item.bytes;
         let len = bytes.len();
         dst.reserve(6 + len);
-        dst.put_u16_be(id);
-        dst.put_u32_be(len as u32);
-        dst.put(bytes);
+        dst.put_u16(id);
+        dst.put_u32(len as u32);
+        dst.put_slice(bytes);
         Ok(())
     }
 }
@@ -152,13 +151,16 @@ impl<EncodeDst: VoicePacketDst, DecodeDst: VoicePacketDst> Decoder
     }
 }
 
-impl<EncodeDst: VoicePacketDst, DecodeDst: VoicePacketDst> Encoder
+impl<EncodeDst: VoicePacketDst, DecodeDst: VoicePacketDst> Encoder<ControlPacket<EncodeDst>>
     for ControlCodec<EncodeDst, DecodeDst>
 {
-    type Item = ControlPacket<EncodeDst>;
     type Error = io::Error;
 
-    fn encode(&mut self, item: Self::Item, dst: &mut BytesMut) -> Result<(), Self::Error> {
+    fn encode(
+        &mut self,
+        item: ControlPacket<EncodeDst>,
+        dst: &mut BytesMut,
+    ) -> Result<(), Self::Error> {
         self.inner.encode(item.into(), dst)
     }
 }
@@ -218,7 +220,7 @@ macro_rules! define_packet_from {
 
             fn try_from(bytes: Bytes) -> Result<Self, Self::Error> {
                 VoiceCodec::<$Dst, $Dst>::default()
-                    .decode(&mut bytes.into())
+                    .decode(&mut BytesMut::from(bytes.as_ref()))
                     .map(|it| it.expect("VoiceCodec is stateless"))
             }
         }

@@ -2,6 +2,7 @@
 
 use byteorder::ReadBytesExt;
 use byteorder::WriteBytesExt;
+use bytes::buf::ext::BufMutExt as _;
 use bytes::BufMut;
 use std::io;
 
