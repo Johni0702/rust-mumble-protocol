@@ -43,6 +43,7 @@ pub struct PongPacket {
 }
 
 /// Error during parsing of a [PingPacket].
+#[derive(Clone, Debug, PartialEq)]
 pub enum ParsePingError {
     /// Ping packets must always be 12 bytes in size.
     InvalidSize,
@@ -79,6 +80,7 @@ impl From<PingPacket> for [u8; 12] {
 }
 
 /// Error during parsing of a [PongPacket].
+#[derive(Clone, Debug, PartialEq)]
 pub enum ParsePongError {
     /// Pong packets must always be 24 bytes in size.
     InvalidSize,
