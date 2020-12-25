@@ -19,7 +19,7 @@ use std::net::SocketAddr;
 use std::net::ToSocketAddrs;
 use tokio::net::TcpStream;
 use tokio::net::UdpSocket;
-use tokio_tls::TlsConnector;
+use tokio_native_tls::TlsConnector;
 use tokio_util::codec::Decoder;
 use tokio_util::udp::UdpFramed;
 
