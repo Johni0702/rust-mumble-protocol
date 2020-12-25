@@ -337,6 +337,9 @@ impl<EncodeDst: VoicePacketDst, DecodeDst: VoicePacketDst> Decoder
     type Error = io::Error;
 
     fn decode(&mut self, buf_mut: &mut BytesMut) -> Result<Option<Self::Item>, Self::Error> {
+        if buf_mut.len() == 0 {
+            return Ok(None);
+        }
         self.decrypt(buf_mut)
             .unwrap_or_else(|_| {
                 Err(io::Error::new(
