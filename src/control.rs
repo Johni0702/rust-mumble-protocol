@@ -281,6 +281,7 @@ macro_rules! define_packet_enum {
         /// A parsed Mumble control packet.
         #[derive(Debug, Clone, PartialEq)]
         #[allow(clippy::large_enum_variant)]
+        #[non_exhaustive]
         pub enum ControlPacket<$Dst: VoicePacketDst> {
             $(
                 #[allow(missing_docs)]

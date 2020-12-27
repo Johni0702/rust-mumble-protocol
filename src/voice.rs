@@ -51,6 +51,7 @@ pub enum VoicePacket<Dst: VoicePacketDst> {
 
 /// Audio data payload of [VoicePacket]s.
 #[derive(Clone, Debug, PartialEq)]
+#[non_exhaustive]
 pub enum VoicePacketPayload {
     /// CELT Alpha (0.7.0) encoded audio frames.
     CeltAlpha(Vec<Bytes>),
