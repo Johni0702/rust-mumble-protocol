@@ -144,9 +144,9 @@ impl<EncodeDst: VoicePacketDst, DecodeDst: VoicePacketDst> Decoder
         let kind = header >> 5;
         let target = header & 0b11111;
         let result = if kind == 1 {
-            VoicePacket::Ping {
-                timestamp: buf.read_varint()?,
-            }
+            let timestamp = buf.read_varint()?;
+            buf_mut.advance(buf_mut.len());
+            VoicePacket::Ping { timestamp }
         } else {
             let session_id = DecodeDst::read_session_id(&mut buf)?;
             let seq_num = buf.read_varint()?;
