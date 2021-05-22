@@ -1,4 +1,4 @@
-// Copyright 2005-2019 The Mumble Developers. All rights reserved.
+// Copyright 2009-2021 The Mumble Developers. All rights reserved.
 // Use of this source code is governed by a BSD-style license
 // that can be found in the LICENSE file at the root of the
 // Mumble source tree or at <https://www.mumble.info/LICENSE>.
@@ -146,6 +146,10 @@ message ChannelState {
 	// the maximum number of users allowed in the channel is given by the
 	// server's "usersperchannel" setting.
 	optional uint32 max_users = 11;
+	// Whether this channel has enter restrictions (ACL denying ENTER) set
+	optional bool is_enter_restricted = 12;
+	// Whether the receiver of this msg is considered to be able to enter this channel
+	optional bool can_enter = 13;
 }
 
 // Used to communicate user leaving or being kicked. May be sent by the client
@@ -196,7 +200,7 @@ message UserState {
 	// Positional audio information is only sent to users who share
 	// identical plugin contexts.
 	//
-	// This value is not trasmitted to clients.
+	// This value is not transmitted to clients.
 	optional bytes plugin_context = 12;
 	// The user's plugin-specific identity.
 	// This value is not transmitted to clients.
@@ -213,6 +217,12 @@ message UserState {
 	optional bool priority_speaker = 18;
 	// True if the user is currently recording.
 	optional bool recording = 19;
+	// A list of temporary access tokens to be respected when processing this request.
+	repeated string temporary_access_tokens = 20;
+	// A list of channels the user wants to start listening to.
+	repeated uint32 listening_channel_add = 21;
+	// a list of channels the user does no longer want to listen to.
+	repeated uint32 listening_channel_remove = 22;
 }
 
 // Relays information on the bans. The client may send the BanList message to
@@ -280,10 +290,14 @@ message PermissionDenied {
 		UserName = 8;
 		// Channel is full.
 		ChannelFull = 9;
-		// Channels are nested too deply.
+		// Channels are nested too deeply.
 		NestingLimit = 10;
 		// Maximum channel count reached.
 		ChannelCountLimit = 11;
+		// Amount of listener objects for this channel has been reached
+		ChannelListenerLimit = 12;
+		// Amount of listener proxies for the user has been reached
+		UserListenerLimit = 13;
 	}
 	// The denied permission when type is Permission.
 	optional uint32 permission = 1;
@@ -369,6 +383,7 @@ message CryptSetup {
 	optional bytes server_nonce = 3;
 }
 
+// Used to add or remove custom context menu item on client-side. 
 message ContextActionModify {
 	enum Context {
 		// Action is applicable to the server.
@@ -382,12 +397,17 @@ message ContextActionModify {
 		Add = 0;
 		Remove = 1;
 	}
-	// The action name.
+	// The action identifier. Used later to initiate an action.
 	required string action = 1;
 	// The display name of the action.
 	optional string text = 2;
-	// Context bit flags defining where the action should be displayed.
+	// Context bit flags defining where the action should be displayed. 
+	// Flags can be OR-ed to combine different types.
 	optional uint32 context = 3;
+	// Choose either to add or to remove the context action.
+	// Note: This field only exists after Mumble 1.2.4-beta1 release.
+	//       The message will be recognized as Add regardless of this field 
+	//       before said release.
 	optional Operation operation = 4;
 }
 
@@ -508,7 +528,7 @@ message UserStats {
 	repeated int32 celt_versions = 13;
 	// Client IP address.
 	optional bytes address = 14;
-	// Bandwith used by this client.
+	// Bandwidth used by this client.
 	optional uint32 bandwidth = 15;
 	// Connection duration.
 	optional uint32 onlinesecs = 16;
@@ -563,4 +583,17 @@ message SuggestConfig {
 	optional bool positional = 2;
 	// True if the administrator suggests push to talk to be used on this server.
 	optional bool push_to_talk = 3;
+}
+
+// Used to send plugin messages between clients
+message PluginDataTransmission {
+	// The session ID of the client this message was sent from
+	optional uint32 senderSession = 1;
+	// The session IDs of the clients that should receive this message
+	repeated uint32 receiverSessions = 2 [packed = true];
+	// The data that is sent
+	optional bytes data = 3;
+	// The ID of the sent data. This will be used by plugins to check whether they will
+	// process it or not
+	optional string dataID = 4;
 }
